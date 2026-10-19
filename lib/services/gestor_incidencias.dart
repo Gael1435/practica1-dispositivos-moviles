@@ -42,8 +42,24 @@ class GestorIncidencias {
     }
   }
 
+  Future<void> cambiarPrioridad(String id, String nuevaPrioridad) async {
+    final prioridadFinal = Incidencia.prioridadesValidas.contains(nuevaPrioridad)
+        ? nuevaPrioridad
+        : 'Media';
+    for (var i = 0; i < incidencias.length; i++) {
+      if (incidencias[i].id == id) {
+        incidencias[i].prioridad = prioridadFinal;
+        await datos.guardar(incidencias);
+        break;
+      }
+    }
+  }
+
   Future<void> crear(String titulo, String descripcion, String cliente,
-      String categoria) async {
+      String categoria, [String prioridad = 'Media']) async {
+    final prioridadFinal = Incidencia.prioridadesValidas.contains(prioridad)
+        ? prioridad
+        : 'Media';
     final nuevo = Incidencia(
       id: 'INC-${DateTime.now().microsecondsSinceEpoch}',
       titulo: titulo,
@@ -52,6 +68,7 @@ class GestorIncidencias {
       categoria: categoria,
       estado: 'Pendiente',
       fecha: DateTime.now().toIso8601String().split('T').first,
+      prioridad: prioridadFinal,
     );
     incidencias.insert(0, nuevo);
     await datos.guardar(incidencias);
