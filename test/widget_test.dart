@@ -14,5 +14,7 @@ void main() {
     });
     expect(registro.id, 'INC-DEMO');
     expect(registro.toJson()['estado'], 'Pendiente');
+    expect(registro.prioridad, 'Media');
+    expect(registro.toJson()['prioridad'], 'Media');
   });
 }
