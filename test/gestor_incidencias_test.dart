@@ -132,4 +132,102 @@ void main() {
       expect(incBaja.toJson()['prioridad'], 'Baja');
     });
   });
+
+  group('Pruebas unitarias de FEAT-002 - Día 4 (Filtros combinables)', () {
+    late GestorIncidencias gestor;
+
+    setUp(() {
+      gestor = GestorIncidencias();
+      gestor.incidencias = [
+        Incidencia(
+          id: 'INC-201',
+          titulo: 'Servidor web no responde',
+          descripcion: 'Error 502 al cargar la pagina principal.',
+          cliente: 'Financiera Real',
+          categoria: 'Software',
+          estado: 'Pendiente',
+          fecha: '2026-10-20',
+          prioridad: 'Alta',
+        ),
+        Incidencia(
+          id: 'INC-202',
+          titulo: 'WiFi intermitente en recepción',
+          descripcion: 'Cortes en la red inalambrica.',
+          cliente: 'Clinica del Prado',
+          categoria: 'Redes',
+          estado: 'En proceso',
+          fecha: '2026-10-20',
+          prioridad: 'Media',
+        ),
+        Incidencia(
+          id: 'INC-203',
+          titulo: 'Mouse con boton roto',
+          descripcion: 'El click izquierdo no responde.',
+          cliente: 'Almacenes Centro',
+          categoria: 'Hardware',
+          estado: 'Resuelta',
+          fecha: '2026-10-20',
+          prioridad: 'Baja',
+        ),
+        Incidencia(
+          id: 'INC-204',
+          titulo: 'Configuración de VPN',
+          descripcion: 'No se puede establecer tunel seguro.',
+          cliente: 'Servicios Norte',
+          categoria: 'Redes',
+          estado: 'Pendiente',
+          fecha: '2026-10-20',
+          prioridad: 'Alta',
+        ),
+      ];
+    });
+
+    test('Filtrar únicamente por estado', () {
+      final pendientes = gestor.filtrar(estado: 'Pendiente');
+      expect(pendientes.length, 2);
+      expect(pendientes.map((x) => x.id), containsAll(['INC-201', 'INC-204']));
+
+      final resueltas = gestor.filtrar(estado: 'Resuelta');
+      expect(resueltas.length, 1);
+      expect(resueltas.first.id, 'INC-203');
+    });
+
+    test('Filtrar únicamente por prioridad', () {
+      final altas = gestor.filtrar(prioridad: 'Alta');
+      expect(altas.length, 2);
+
+      final medias = gestor.filtrar(prioridad: 'Media');
+      expect(medias.length, 1);
+      expect(medias.first.id, 'INC-202');
+    });
+
+    test('Filtrar combinando texto, estado y prioridad', () {
+      // Buscar 'vpn', estado 'Pendiente' y prioridad 'Alta'
+      final resultado = gestor.filtrar(
+        texto: 'vpn',
+        estado: 'Pendiente',
+        prioridad: 'Alta',
+      );
+      expect(resultado.length, 1);
+      expect(resultado.first.id, 'INC-204');
+    });
+
+    test('Combinación sin coincidencias devuelve lista vacía sin error', () {
+      final resultado = gestor.filtrar(
+        texto: 'mouse',
+        estado: 'Pendiente',
+        prioridad: 'Alta',
+      );
+      expect(resultado.isEmpty, isTrue);
+    });
+
+    test('Restablecer a Todos/Todas devuelve la lista completa', () {
+      final resultado = gestor.filtrar(
+        texto: '',
+        estado: 'Todos',
+        prioridad: 'Todas',
+      );
+      expect(resultado.length, 4);
+    });
+  });
 }

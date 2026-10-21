@@ -11,14 +11,27 @@ class GestorIncidencias {
     incidencias = await datos.leer();
   }
 
-  List<Incidencia> buscar(String texto) {
+  List<Incidencia> filtrar({
+    String texto = '',
+    String estado = 'Todos',
+    String prioridad = 'Todas',
+  }) {
     final query = texto.trim().toLowerCase();
-    if (query.isEmpty) return incidencias;
     return incidencias.where((x) {
-      final titulo = x.titulo.toLowerCase();
-      final descripcion = x.descripcion.toLowerCase();
-      return titulo.contains(query) || descripcion.contains(query);
+      final matchTexto = query.isEmpty ||
+          x.titulo.toLowerCase().contains(query) ||
+          x.descripcion.toLowerCase().contains(query);
+
+      final matchEstado = (estado == 'Todos' || x.estado == estado);
+      final matchPrioridad = (prioridad == 'Todas' || x.prioridad == prioridad);
+
+      return matchTexto && matchEstado && matchPrioridad;
     }).toList();
+  }
+
+  List<Incidencia> buscar(String texto,
+      {String estado = 'Todos', String prioridad = 'Todas'}) {
+    return filtrar(texto: texto, estado: estado, prioridad: prioridad);
   }
 
   Incidencia? porId(String id) {
